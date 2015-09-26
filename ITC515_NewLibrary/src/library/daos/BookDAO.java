@@ -11,15 +11,17 @@ import library.interfaces.entities.IBook;
 public class BookDAO implements IBookDAO {
 
 	IBookHelper helper;
-	int nextId = 1;
+	int nextId = 0;
 	Map<Integer, IBook> bookMap;
 	
 	
 	public BookDAO (IBookHelper helper) {
 		if (helper == null) {
 			throw new IllegalArgumentException("helper cannot be null");
+		} else {
+			this.helper = helper;
 		}
-		this.helper = helper;
+		
 	}
 	
 	@Override

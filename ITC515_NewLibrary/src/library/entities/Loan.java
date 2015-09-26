@@ -81,7 +81,8 @@ public class Loan implements ILoan{
 		// TODO Auto-generated method stub
 		if (state == ELoanState.CURRENT || state == ELoanState.OVERDUE) {
 			if (currentDate.after(dueDate)) {
-			return true;
+				state = ELoanState.OVERDUE;
+				return true;
 			}
 		} else {
 			throw new IllegalArgumentException("book is not on loan");
@@ -89,6 +90,17 @@ public class Loan implements ILoan{
 		
 		return false;
 	}
+	
+	@Override
+	public boolean isCurrent() {
+		// TODO Auto-generated method stub
+		if (state == ELoanState.CURRENT){
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 
 	@Override
 	public IMember getBorrower() {
@@ -108,4 +120,5 @@ public class Loan implements ILoan{
 		return id;
 	}
 
+	
 }
