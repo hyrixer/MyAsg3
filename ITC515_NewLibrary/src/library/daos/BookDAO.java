@@ -1,18 +1,21 @@
 package library.daos;
 
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.IBookHelper;
 import library.interfaces.entities.IBook;
+import library.interfaces.entities.ILoan;
 
 public class BookDAO implements IBookDAO {
 
 	IBookHelper helper;
 	int nextId = 0;
-	Map<Integer, IBook> bookMap;
+	Map<Integer, IBook> bookMap = new HashMap<Integer, IBook>();
 	
 	
 	public BookDAO (IBookHelper helper) {
@@ -30,6 +33,7 @@ public class BookDAO implements IBookDAO {
 		IBook newBook = helper.makeBook(author, title, callNo, nextId);
 		bookMap.put(nextId, newBook);
 		nextId++;
+		
 		return newBook;
 	}
 
@@ -47,7 +51,7 @@ public class BookDAO implements IBookDAO {
 	@Override
 	public List<IBook> listBooks() {
 		// TODO Auto-generated method stub
-		List <IBook> bookList = null;
+		List <IBook> bookList = new LinkedList<IBook>();
 		for (int i = 0; i < bookMap.size(); i++) {
 			bookList.add(bookMap.get(i));
 		}
@@ -57,7 +61,7 @@ public class BookDAO implements IBookDAO {
 	@Override
 	public List<IBook> findBooksByAuthor(String author) {
 		// TODO Auto-generated method stub
-		List <IBook> bookList = null;
+		List <IBook> bookList = new LinkedList<IBook>();
 		for (int i = 0; i < bookMap.size(); i++) {
 			IBook book = bookMap.get(i);
 			if (book.getAuthor() == author) {
@@ -70,7 +74,7 @@ public class BookDAO implements IBookDAO {
 	@Override
 	public List<IBook> findBooksByTitle(String title) {
 		// TODO Auto-generated method stub
-		List <IBook> bookList = null;
+		List <IBook> bookList = new LinkedList<IBook>();
 		for (int i = 0; i < bookMap.size(); i++) {
 			IBook book = bookMap.get(i);
 			if (book.getTitle() == title) {
@@ -83,7 +87,7 @@ public class BookDAO implements IBookDAO {
 	@Override
 	public List<IBook> findBooksByAuthorTitle(String author, String title) {
 		// TODO Auto-generated method stub
-		List <IBook> bookList = null;
+		List <IBook> bookList = new LinkedList<IBook>();
 		for (int i = 0; i < bookMap.size(); i++) {
 			IBook book = bookMap.get(i);
 			if (book.getTitle() == title) {

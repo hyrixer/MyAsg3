@@ -2,6 +2,8 @@ package library.daos;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +16,7 @@ import library.interfaces.entities.IMember;
 public class LoanDAO implements ILoanDAO {
 	
 	int nextID = 0;
-	Map<Integer, ILoan> loanMap;
+	Map<Integer, ILoan> loanMap = new HashMap<Integer, ILoan>();
 	Calendar cal = Calendar.getInstance();;
 	ILoanHelper helper;
 	
@@ -62,7 +64,7 @@ public class LoanDAO implements ILoanDAO {
 	@Override
 	public List<ILoan> listLoans() {
 		// TODO Auto-generated method stub
-		List <ILoan> loanList = null;
+		List <ILoan> loanList = new LinkedList<ILoan>();
 		for (int i = 0; i < loanMap.size(); i++) {
 			loanList.add(loanMap.get(i));
 		}
@@ -73,7 +75,7 @@ public class LoanDAO implements ILoanDAO {
 	@Override
 	public List<ILoan> findLoansByBorrower(IMember borrower) {
 		// TODO Auto-generated method stub
-		List <ILoan> loanList = null;
+		List <ILoan> loanList =new LinkedList<ILoan>();
 		for (int i = 0; i < loanMap.size(); i++) {
 			ILoan loan = loanMap.get(i);
 			if (loan.getBorrower() == borrower) {
@@ -87,7 +89,7 @@ public class LoanDAO implements ILoanDAO {
 	@Override
 	public List<ILoan> findLoansByBookTitle(String title) {
 		// TODO Auto-generated method stub
-		List <ILoan> loanList = null;
+		List <ILoan> loanList = new LinkedList<ILoan>();
 		for (int i = 0; i < loanMap.size(); i++) {
 			ILoan loan = loanMap.get(i);
 			if (loan.getBook().getTitle() == title) {
@@ -113,7 +115,7 @@ public class LoanDAO implements ILoanDAO {
 	@Override
 	public List<ILoan> findOverDueLoans() {
 		// TODO Auto-generated method stub
-		List <ILoan> loanList = null;
+		List <ILoan> loanList = new LinkedList<ILoan>();
 		for (int i = 0; i < loanMap.size(); i++) {
 			ILoan loan = loanMap.get(i);
 			if (loan.isOverDue()) {
