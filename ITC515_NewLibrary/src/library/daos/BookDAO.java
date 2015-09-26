@@ -1,6 +1,6 @@
 package library.daos;
 
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +27,7 @@ public class BookDAO implements IBookDAO {
 		// TODO Auto-generated method stub
 		IBook newBook = helper.makeBook(author, title, callNo, nextId);
 		bookMap.put(nextId, newBook);
+		nextId++;
 		return newBook;
 	}
 
