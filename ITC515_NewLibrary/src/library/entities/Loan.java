@@ -9,12 +9,12 @@ import library.interfaces.entities.IMember;
 
 public class Loan implements ILoan{
 	
-	int id;
-	Date borrowDate;
-	Date dueDate;
-	IMember borrower;
-	IBook book;
-	ELoanState state;
+	private int id;
+	private Date borrowDate;
+	private Date dueDate;
+	private IMember borrower;
+	private IBook book;
+	private ELoanState state;
 	
 	public Loan (IBook book, IMember borrower, Date borrowDate, Date dueDate) {
 		if (book == null ) {

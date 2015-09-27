@@ -6,12 +6,12 @@ import library.interfaces.entities.ILoan;
 
 public class Book implements IBook{
 
-	String author;
-	String title;
-	String callNumber;
-	int id;
-	ILoan loan;
-	EBookState state;
+	private String author;
+	private String title;
+	private String callNumber;
+	private int id;
+	private ILoan loan;
+	private EBookState state;
 	
 	public Book (String author, String title, String callNumber, int bookID) {
 		if (author == null || author == "") {
@@ -30,6 +30,7 @@ public class Book implements IBook{
 			this.title = title;
 			this.callNumber = callNumber;
 			this.id = bookID;
+			this.state = EBookState.AVAILABLE;
 		}
 		
 	}
@@ -41,6 +42,7 @@ public class Book implements IBook{
 			throw new IllegalArgumentException("book is not available");
 		} else {
 			this.loan = loan;
+			state = EBookState.ON_LOAN;
 		}
 	}
 

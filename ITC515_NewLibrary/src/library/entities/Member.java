@@ -11,14 +11,14 @@ import java.util.Date;
 
 public class Member implements IMember {
 
-	int id;
-	float totalFines;
-	List<ILoan> loanList; 
-	String firstName;
-	String lastName;
-	String contactPhone;
-	String emailAddress;
-	EMemberState state;
+	private int id;
+	private float totalFines;
+	private List<ILoan> loanList; 
+	private String firstName;
+	private String lastName;
+	private String contactPhone;
+	private String emailAddress;
+	private EMemberState state;
 	
 	
 	
