@@ -70,6 +70,7 @@ public class TestBook {
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void testBookReturnNotOnLoan() {
+		// return an available book
 		book.returnBook(true);
 		
 	}

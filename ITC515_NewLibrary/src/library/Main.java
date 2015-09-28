@@ -59,7 +59,7 @@ public class Main implements IMainListener {
 	
 	private void setupTestData() {
         IBook[] book = new IBook[15];
-		IMember[] member = new IMember[6];
+		//IMember[] member = new IMember[6];
 		
 		book[0]  = bookDAO.addBook("author1", "title1", "callNo1");
 		book[1]  = bookDAO.addBook("author1", "title2", "callNo2");
@@ -77,7 +77,7 @@ public class Main implements IMainListener {
 		book[13] = bookDAO.addBook("author5", "title14", "callNo14");
 		book[14] = bookDAO.addBook("author5", "title15", "callNo15");
 		
-		member[0] = memberDAO.addMember("fName0", "lName0", "0001", "email0");
+		/*member[0] = memberDAO.addMember("fName0", "lName0", "0001", "email0");
 		member[1] = memberDAO.addMember("fName1", "lName1", "0002", "email1");
 		member[2] = memberDAO.addMember("fName2", "lName2", "0003", "email2");
 		member[3] = memberDAO.addMember("fName3", "lName3", "0004", "email3");
@@ -113,7 +113,7 @@ public class Main implements IMainListener {
 		for (int i=7; i<9; i++) {
 			ILoan loan = loanDAO.createLoan(member[5], book[i]);
 			loanDAO.commitLoan(loan);
-		}
+		}*/
 	}
 
 	

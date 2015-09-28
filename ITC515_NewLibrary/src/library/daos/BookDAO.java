@@ -14,7 +14,7 @@ import library.interfaces.entities.ILoan;
 public class BookDAO implements IBookDAO {
 
 	IBookHelper helper;
-	int nextId = 0;
+	int nextId = 1;
 	Map<Integer, IBook> bookMap = new HashMap<Integer, IBook>();
 	
 	
@@ -52,7 +52,7 @@ public class BookDAO implements IBookDAO {
 	public List<IBook> listBooks() {
 		// TODO Auto-generated method stub
 		List <IBook> bookList = new LinkedList<IBook>();
-		for (int i = 0; i < bookMap.size(); i++) {
+		for (int i = 1; i < bookMap.size()+1; i++) {
 			bookList.add(bookMap.get(i));
 		}
 		return bookList;
@@ -62,7 +62,7 @@ public class BookDAO implements IBookDAO {
 	public List<IBook> findBooksByAuthor(String author) {
 		// TODO Auto-generated method stub
 		List <IBook> bookList = new LinkedList<IBook>();
-		for (int i = 0; i < bookMap.size(); i++) {
+		for (int i = 1; i < bookMap.size()+1; i++) {
 			IBook book = bookMap.get(i);
 			if (book.getAuthor() == author) {
 				bookList.add(book);
@@ -75,7 +75,7 @@ public class BookDAO implements IBookDAO {
 	public List<IBook> findBooksByTitle(String title) {
 		// TODO Auto-generated method stub
 		List <IBook> bookList = new LinkedList<IBook>();
-		for (int i = 0; i < bookMap.size(); i++) {
+		for (int i = 1; i < bookMap.size()+1; i++) {
 			IBook book = bookMap.get(i);
 			if (book.getTitle() == title) {
 				bookList.add(book);
@@ -88,7 +88,7 @@ public class BookDAO implements IBookDAO {
 	public List<IBook> findBooksByAuthorTitle(String author, String title) {
 		// TODO Auto-generated method stub
 		List <IBook> bookList = new LinkedList<IBook>();
-		for (int i = 0; i < bookMap.size(); i++) {
+		for (int i = 1; i < bookMap.size()+1; i++) {
 			IBook book = bookMap.get(i);
 			if (book.getTitle() == title) {
 				bookList.add(book);
@@ -99,4 +99,8 @@ public class BookDAO implements IBookDAO {
 		return bookList;
 	}
 
+	public Map<Integer, IBook> getBookMap() {
+		
+		return bookMap;
+	}
 }
