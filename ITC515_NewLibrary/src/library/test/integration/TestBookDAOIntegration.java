@@ -4,19 +4,25 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import library.daos.BookDAO;
 import library.daos.BookHelper;
+import library.daos.LoanDAO;
+import library.daos.MemberDAO;
 import library.entities.Book;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.IBookHelper;
+import library.interfaces.daos.IMemberHelper;
 import library.interfaces.entities.IBook;
+import library.interfaces.entities.ILoan;
+import library.interfaces.entities.IMember;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,39 +30,56 @@ import org.junit.Test;
 
 public class TestBookDAOIntegration {
 
-	private BookDAO bookDAO;
-	private BookDAO bookDAO2;
-	private int id;
+	private IBook book1;
+	private IBook book2;
+	private ILoan loan;
+	private IMember member;
 	private String author;
 	private String title;
 	private String callNo;
-	private IBookHelper bookHelper;
-	private Map<Integer, IBook> bookMap;
-	private IBook book1;
-	private IBook book2;
+	private String author2;
+	private String title2;
+	private String callNo2;
+	private String firstName;
+	private String lastName;
+	private String contactPhone;
+	private String emailAddress;
+	private int id;
+	Date borrowDate;
+	Date dueDate;
+	Calendar cal;
+	IBook[] bookArray;
+	BookDAO bookDAO;
+	LoanDAO loanDAO;
+	BookDAO memberDAO;
+	IBookHelper helper;
+	Map<Integer, IBook> bookMap;
 	
 	@Before
 	public void setUp() {
 		bookMap = new HashMap<Integer, IBook>();
-		bookHelper = new BookHelper();
+		helper = new BookHelper();
 		
-		bookDAO = new BookDAO(bookHelper);
-		bookDAO2 = new BookDAO(bookHelper);
+		bookDAO = new BookDAO(helper, bookMap);
+		
 		author = "H. P. McNeal";
 		title = "Deep and Meaingful Thoughts";
 		callNo = "ABC11234";
 		id = 1;
-		//book1 = new Book(author,title,callNo,1);
-		book1 =  bookHelper.makeBook(author,title,callNo,id);
-		book2 = bookHelper.makeBook(author, title, callNo, id);
+		
+	
+		book1 = helper.makeBook(author,title,callNo,id);
+		book2 = helper.makeBook("author2", "title2", "callNo2", id+1);
+		bookMap.put(id, book1);
+		bookMap.put(id+1, book2);
 	}
 	
 	
 	@After
 	public void tearDown() {
 		bookDAO = null;
-		bookDAO2 = null;
-		bookHelper = null;
+		
+		helper = null;
 		bookMap = null;
 	}
 	
@@ -64,7 +87,7 @@ public class TestBookDAOIntegration {
 	public void testBookDAO() {
 		
 		
-		BookDAO newBook = new BookDAO(bookHelper);
+		BookDAO newBook = new BookDAO(helper);
 		assertNotNull(newBook);
 		assertTrue(newBook instanceof IBookDAO);
 	}
@@ -84,14 +107,13 @@ public class TestBookDAOIntegration {
 		
 		
 		IBook newBook = bookDAO.addBook(author, title, callNo);
-		bookMap = bookDAO.getBookMap();
-		
-		assertTrue(bookMap.size() == 1);
+				
+		assertTrue(bookMap.size() == 2);
 		assertEquals(book1.getID(), newBook.getID());
-		assertEquals(book1, newBook);
+		assertEquals(bookMap.get(1), newBook);
 		
 		newBook = bookMap.get(1);
-		assertEquals(book1, newBook);
+		//assertEquals(book1, newBook);
 		
 	}
 	
@@ -104,7 +126,7 @@ public class TestBookDAOIntegration {
 		
 		newBook = bookDAO.getBookByID(id);
 		
-		assertEquals(book1, newBook);
+		assertEquals(bookMap.get(1), newBook);
 		
 	}
 	
@@ -127,12 +149,12 @@ public class TestBookDAOIntegration {
 		
 		bookDAO.addBook(author, title, callNo);
 		bookDAO.addBook("Author2", title, callNo);
-		book2 = bookHelper.makeBook("author2", title, callNo, id+1);
+		//book2 = helper.makeBook(author, title, callNo, id+1);
 		
-		List <IBook> list = bookDAO.findBooksByAuthor("Author2");
+		List <IBook> list = bookDAO.findBooksByAuthor(author);
 		
 		assertTrue(list.size() == 1);
-		assertEquals(book2, list.get(0));
+		assertEquals(bookMap.get(1), list.get(0));
 		
 		
 	}
@@ -145,13 +167,13 @@ public class TestBookDAOIntegration {
 		
 		
 		bookDAO.addBook(author, title, callNo);
-		bookDAO.addBook(author, expectedTitle, callNo);
-		book2 = bookHelper.makeBook(author, expectedTitle, callNo, id);
+		bookDAO.addBook(author, "title2", callNo);
+		//book2 = helper.makeBook(author, expectedTitle, callNo, id);
 		
-		List <IBook> list = bookDAO.findBooksByTitle(expectedTitle);
+		List <IBook> list = bookDAO.findBooksByTitle(title);
 		
 		assertTrue(list.size() == 1);
-		assertEquals(book2, list.get(0));
+		assertEquals(bookMap.get(1), list.get(0));
 		
 		
 	}
@@ -166,12 +188,12 @@ public class TestBookDAOIntegration {
 		
 		
 		bookDAO.addBook(author, title, callNo);
-		bookDAO.addBook(expectedAuthor, expectedTitle, callNo);
+		bookDAO.addBook("author2", "title2", callNo);
 		
-		List <IBook> list = bookDAO.findBooksByAuthorTitle(expectedAuthor, expectedTitle);
+		List <IBook> list = bookDAO.findBooksByAuthorTitle(author, title);
 		
 		assertTrue(list.size() == 1);
-		assertEquals(book2, list.get(0));
+		assertEquals(bookMap.get(1), list.get(0));
 		
 		
 	}
@@ -179,15 +201,15 @@ public class TestBookDAOIntegration {
 	@Test
 	public void testListBook() {
 		List<IBook> list = bookDAO.listBooks();
-		assertTrue(list.size() == 0);
+		assertTrue(list.size() == 2);
 		
 				
 		bookDAO.addBook(author, title, callNo);
 		
 		list = bookDAO.listBooks();
-		assertTrue(list.size() == 1);
+		assertTrue(list.size() == 2);
 		IBook book = list.get(0);
-		book.getAuthor();
+		//book.getAuthor();
 		
 	}
 	

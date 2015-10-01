@@ -29,6 +29,19 @@ public class BookDAO implements IBookDAO {
 		
 	}
 	
+	public BookDAO (IBookHelper helper, Map<Integer, IBook> bookMap) {
+		if (helper == null) {
+			throw new IllegalArgumentException("helper cannot be null");
+		} else {
+			this.helper = helper;
+			this.bookMap = bookMap;
+			this.nextId = 1;
+		}
+		
+	}
+	
+	
+	
 	@Override
 	public IBook addBook(String author, String title, String callNo) {
 		// TODO Auto-generated method stub

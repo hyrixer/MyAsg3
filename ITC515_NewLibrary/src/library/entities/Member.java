@@ -161,7 +161,7 @@ public class Member implements IMember {
 	@Override
 	public String toString() {
 		return String.format(
-				"Id: %d\nName: %s %s\nContact Phone: %s\nEmail: %s\nOutstanding Charges: %0.2f", id,
+				"Id: %d\nName: %s %s\nContact Phone: %s\nEmail: %s\nOutstanding Charges: %f", id,
 				firstName, lastName, contactPhone, emailAddress, totalFines);
 	}
 
