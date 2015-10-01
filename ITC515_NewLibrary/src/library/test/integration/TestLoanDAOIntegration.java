@@ -4,13 +4,18 @@ import static org.junit.Assert.*;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import library.daos.BookDAO;
+import library.daos.LoanDAO;
+import library.daos.LoanHelper;
 import library.entities.Book;
 import library.entities.Loan;
 import library.entities.Member;
 import library.interfaces.daos.IBookHelper;
+import library.interfaces.daos.ILoanHelper;
 import library.interfaces.entities.EBookState;
 import library.interfaces.entities.ELoanState;
 import library.interfaces.entities.IBook;
@@ -21,8 +26,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestLoanIntegration {
-
+public class TestLoanDAOIntegration {
+	
 	private IBook book;
 	private IBook book2;
 	private ILoan loan;
@@ -43,7 +48,9 @@ public class TestLoanIntegration {
 	Calendar cal;
 	IBook[] bookArray;
 	BookDAO bookDAO;
-	IBookHelper helper;
+	LoanDAO loanDAO;
+	ILoanHelper helper;
+	Map<Integer, ILoan> loanMap;
 	
 		
 		@Before
@@ -57,13 +64,18 @@ public class TestLoanIntegration {
 			contactPhone = "763863873";
 			emailAddress = "AnEmailAddress@Email.com";
 			cal = Calendar.getInstance();;
-			borrowDate = cal.getTime();
+			borrowDate = new Date();
 			cal.setTime(borrowDate);
 			cal.add(Calendar.DATE, ILoan.LOAN_PERIOD);
 			dueDate = cal.getTime();
+			helper = new LoanHelper();
+			loanMap = new HashMap<Integer, ILoan>();
+			
+			loanDAO = new LoanDAO(helper, loanMap);
 			book = new Book(author, title, callNo, id);
 			member = new Member(firstName,lastName,contactPhone,emailAddress,1);
 			loan = new Loan(book, member, borrowDate, dueDate);
+			loanMap.put(id, loan);
 		}
 		
 		@After
@@ -71,53 +83,64 @@ public class TestLoanIntegration {
 			book = null;
 			member = null;
 			loan = null;
+			loanDAO = null;
+			loanMap = null;
 		}
-		
-		@Test 
-		public void testCommit() {
-			int loanid = 1;
-			loan.commit(loanid);
+	
+		@Test
+		public void testGetLoanById() {
 			
-			ELoanState expectedState = ELoanState.CURRENT;
-			ELoanState actualState = loan.getState();
-			assertEquals(expectedState, actualState);
-			
-			ILoan newLoan = book.getLoan();
+			ILoan newLoan = loanDAO.getLoanByID(1);
 			assertEquals(newLoan, loan);
-			List<ILoan> loans = member.getLoans();
-			assertTrue(loans.size() == 1);
-			assertEquals(loans.get(0), loan);
 			
 		}
-		
-		@Test
-		public void testComplete() {
-			//set up
-			loan.commit(1);
-			//execute
-			loan.complete();
-			//test state = complete
-			ELoanState expectedState = ELoanState.COMPLETE;
-			ELoanState actualState = loan.getState();
-			assertEquals(expectedState, actualState);
-		}
-		
-		@Test
-		public void testGetBorrower() {
 
-			IMember borrower = loan.getBorrower();
-			assertEquals(member, borrower);
+		@Test
+		public void testListLoans() {
+			
+			List<ILoan> newList = loanDAO.listLoans();
+			assertTrue(newList.size() == 1);
+			assertEquals(newList.get(0), loan);
 			
 		}
 		
 		@Test
-		public void testGetBook() {
+		public void testFindLoansByBorrower() {
 			
-			IBook newBook  = loan.getBook();
-			assertEquals(book, newBook);
-		
+			List<ILoan> newList = loanDAO.findLoansByBorrower(member);
+			assertTrue(newList.size() == 1);
+			assertEquals(newList.get(0), loan);
+			
 		}
 		
+		@Test
+		public void testFindLoansByBookTitle() {
+			
+			List<ILoan> newList = loanDAO.findLoansByBookTitle(title);
+			assertTrue(newList.size() == 1);
+			assertEquals(newList.get(0), loan);
+			
+		}
+		
+		@Test
+		public void testCreateLoan() {
+			ILoan newLoan = loanDAO.createLoan(member, book);
+			IBook newBook = newLoan.getBook();
+			IMember newMember = newLoan.getBorrower();
+			assertTrue(loanDAO.listLoans().size() == 1);
+			assertEquals(newBook, book);
+			assertEquals(newMember, member);
+			//assertEquals(newLoan, loanMap.get(1));
+			
+		}
+		
+		@Test
+		public void testCommitLoan() {
+			loanDAO.commitLoan(loan);
+			List<ILoan> newLoans = loanDAO.listLoans();
+			assertTrue(newLoans.size() == 1);
+			assertEquals(newLoans.get(0), loan);
+		}
 		
 		
 }

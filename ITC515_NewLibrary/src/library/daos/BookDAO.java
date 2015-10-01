@@ -67,7 +67,7 @@ public class BookDAO implements IBookDAO {
 		List <IBook> bookList = new LinkedList<IBook>();
 		for (int i = 1; i < bookMap.size()+1; i++) {
 			IBook book = bookMap.get(i);
-			if (book.getAuthor() == author) {
+			if (book.getAuthor().equals( author)) {
 				bookList.add(book);
 			}
 		}
@@ -80,7 +80,7 @@ public class BookDAO implements IBookDAO {
 		List <IBook> bookList = new LinkedList<IBook>();
 		for (int i = 1; i < bookMap.size()+1; i++) {
 			IBook book = bookMap.get(i);
-			if (book.getTitle() == title) {
+			if (book.getTitle().equals(title)) {
 				bookList.add(book);
 			}
 		}
@@ -93,9 +93,9 @@ public class BookDAO implements IBookDAO {
 		List <IBook> bookList = new LinkedList<IBook>();
 		for (int i = 1; i < bookMap.size()+1; i++) {
 			IBook book = bookMap.get(i);
-			if (book.getTitle() == title) {
+			if (book.getTitle().equals(title)) {
 				bookList.add(book);
-			} else if (book.getAuthor() == author) {
+			} else if (book.getAuthor().equals(author)) {
 				bookList.add(book);
 			}
 		}

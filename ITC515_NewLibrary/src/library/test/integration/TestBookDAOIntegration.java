@@ -48,7 +48,7 @@ public class TestBookDAOIntegration {
 		id = 1;
 		//book1 = new Book(author,title,callNo,1);
 		book1 =  bookHelper.makeBook(author,title,callNo,id);
-		//book2 = new Book("Author2", "Title2", "callNo2", id+1);
+		book2 = bookHelper.makeBook(author, title, callNo, id);
 	}
 	
 	
@@ -83,11 +83,12 @@ public class TestBookDAOIntegration {
 		
 		
 		
-		IBook newBook = bookDAO2.addBook(author, title, callNo);
-		bookMap = bookDAO2.getBookMap();
+		IBook newBook = bookDAO.addBook(author, title, callNo);
+		bookMap = bookDAO.getBookMap();
 		
 		assertTrue(bookMap.size() == 1);
-		//assertEquals(book1, newBook);
+		assertEquals(book1.getID(), newBook.getID());
+		assertEquals(book1, newBook);
 		
 		newBook = bookMap.get(1);
 		assertEquals(book1, newBook);
@@ -126,6 +127,7 @@ public class TestBookDAOIntegration {
 		
 		bookDAO.addBook(author, title, callNo);
 		bookDAO.addBook("Author2", title, callNo);
+		book2 = bookHelper.makeBook("author2", title, callNo, id+1);
 		
 		List <IBook> list = bookDAO.findBooksByAuthor("Author2");
 		
@@ -144,6 +146,7 @@ public class TestBookDAOIntegration {
 		
 		bookDAO.addBook(author, title, callNo);
 		bookDAO.addBook(author, expectedTitle, callNo);
+		book2 = bookHelper.makeBook(author, expectedTitle, callNo, id);
 		
 		List <IBook> list = bookDAO.findBooksByTitle(expectedTitle);
 		

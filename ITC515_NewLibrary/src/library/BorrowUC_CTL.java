@@ -85,6 +85,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 		previous = display.getDisplay();
 		display.setDisplay((JPanel) ui, "Borrow UI");		
 		setState(EBorrowState.INITIALIZED);
+		
 	}
 	
 	public void close() {
