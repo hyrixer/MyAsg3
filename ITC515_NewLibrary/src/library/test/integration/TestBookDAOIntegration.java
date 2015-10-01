@@ -1,7 +1,11 @@
-package library.test.daos;
+package library.test.integration;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,19 +16,16 @@ import library.daos.BookHelper;
 import library.entities.Book;
 import library.interfaces.daos.IBookDAO;
 import library.interfaces.daos.IBookHelper;
-import library.interfaces.entities.EBookState;
 import library.interfaces.entities.IBook;
-import library.interfaces.entities.ILoan;
 
-import org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
-public class TestBookDAO {
+public class TestBookDAOIntegration {
 
 	private BookDAO bookDAO;
+	private BookDAO bookDAO2;
 	private int id;
 	private String author;
 	private String title;
@@ -37,20 +38,24 @@ public class TestBookDAO {
 	@Before
 	public void setUp() {
 		bookMap = new HashMap<Integer, IBook>();
-		bookHelper = mock(IBookHelper.class);
-		book1 = mock(IBook.class);
-		book2 = mock(IBook.class);
+		bookHelper = new BookHelper();
+		
 		bookDAO = new BookDAO(bookHelper);
+		bookDAO2 = new BookDAO(bookHelper);
 		author = "H. P. McNeal";
 		title = "Deep and Meaingful Thoughts";
 		callNo = "ABC11234";
 		id = 1;
+		//book1 = new Book(author,title,callNo,1);
+		book1 =  bookHelper.makeBook(author,title,callNo,id);
+		//book2 = new Book("Author2", "Title2", "callNo2", id+1);
 	}
 	
 	
 	@After
 	public void tearDown() {
 		bookDAO = null;
+		bookDAO2 = null;
 		bookHelper = null;
 		bookMap = null;
 	}
@@ -75,14 +80,14 @@ public class TestBookDAO {
 	public void testAddBook() {
 
 		
-		when(bookHelper.makeBook(author, title, callNo, id)).thenReturn(book1);
 		
 		
-		IBook newBook = bookDAO.addBook(author, title, callNo);
-		bookMap = bookDAO.getBookMap();
+		
+		IBook newBook = bookDAO2.addBook(author, title, callNo);
+		bookMap = bookDAO2.getBookMap();
 		
 		assertTrue(bookMap.size() == 1);
-		assertEquals(book1, newBook);
+		//assertEquals(book1, newBook);
 		
 		newBook = bookMap.get(1);
 		assertEquals(book1, newBook);
@@ -92,8 +97,7 @@ public class TestBookDAO {
 	
 	@Test
 	public void testGetBookByIDPresent() {
-		when(bookHelper.makeBook(author, title, callNo, id)).thenReturn(book1);
-		when(book1.getID()).thenReturn(id);
+	
 		
 		IBook newBook = bookDAO.addBook(author, title, callNo);
 		
@@ -105,12 +109,11 @@ public class TestBookDAO {
 	
 	@Test
 	public void testGetBookByIDAbsent() {
-		when(bookHelper.makeBook(author, title, callNo, id)).thenReturn(book1);
-		when(book1.getID()).thenReturn(id);
+		
 		
 		IBook newBook = bookDAO.addBook(author, title, callNo);
 		
-		newBook = bookDAO.getBookByID(id+1);
+		newBook = bookDAO.getBookByID(id+10);
 		
 		assertNull(newBook);
 		
@@ -119,17 +122,12 @@ public class TestBookDAO {
 	
 	@Test
 	public void testFindBookByAuthor() {
-		String expectedAuthor = "B. Arther";
-		when(bookHelper.makeBook(author, title, callNo, id)).thenReturn(book1);
-		when(bookHelper.makeBook(expectedAuthor, title, callNo, id+1)).thenReturn(book2);
-		
-		when(book1.getAuthor()).thenReturn(author);
-		when(book2.getAuthor()).thenReturn(expectedAuthor);
+
 		
 		bookDAO.addBook(author, title, callNo);
-		bookDAO.addBook(expectedAuthor, title, callNo);
+		bookDAO.addBook("Author2", title, callNo);
 		
-		List <IBook> list = bookDAO.findBooksByAuthor(expectedAuthor);
+		List <IBook> list = bookDAO.findBooksByAuthor("Author2");
 		
 		assertTrue(list.size() == 1);
 		assertEquals(book2, list.get(0));
@@ -139,12 +137,10 @@ public class TestBookDAO {
 	
 	@Test
 	public void testFindBookByTitle() {
-		String expectedTitle = "Book About Nothing";
-		when(bookHelper.makeBook(author, title, callNo, id)).thenReturn(book1);
-		when(bookHelper.makeBook(author, expectedTitle, callNo, id+1)).thenReturn(book2);
+		String expectedTitle = "Title2";
 		
-		when(book1.getTitle()).thenReturn(title);
-		when(book2.getTitle()).thenReturn(expectedTitle);
+		
+		
 		
 		bookDAO.addBook(author, title, callNo);
 		bookDAO.addBook(author, expectedTitle, callNo);
@@ -160,15 +156,11 @@ public class TestBookDAO {
 	
 	@Test
 	public void testFindBookByAuthorTitle() {
-		String expectedTitle = "Deep and Meaingful Thoughts2";
-		String expectedAuthor = "B. Arther";
-		when(bookHelper.makeBook(author, title, callNo, id)).thenReturn(book1);
-		when(bookHelper.makeBook(expectedAuthor, expectedTitle, callNo, id+1)).thenReturn(book2);
+		String expectedTitle = "Title2";
+		String expectedAuthor = "Author2";
 		
-		when(book1.getTitle()).thenReturn(title);
-		when(book1.getAuthor()).thenReturn(author);
-		when(book2.getTitle()).thenReturn(expectedTitle);
-		when(book2.getAuthor()).thenReturn(expectedAuthor);
+		
+		
 		
 		bookDAO.addBook(author, title, callNo);
 		bookDAO.addBook(expectedAuthor, expectedTitle, callNo);
@@ -186,8 +178,7 @@ public class TestBookDAO {
 		List<IBook> list = bookDAO.listBooks();
 		assertTrue(list.size() == 0);
 		
-		when(bookHelper.makeBook(author, title, callNo, id)).thenReturn(book1);
-		
+				
 		bookDAO.addBook(author, title, callNo);
 		
 		list = bookDAO.listBooks();

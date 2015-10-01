@@ -47,11 +47,12 @@ public class Main implements IMainListener {
 	
 	@Override
 	public void borrowBooks() {
-		final BorrowUC_CTL ctl = new BorrowUC_CTL(reader, scanner, printer, display, 
+		BorrowUC_CTL ctl = new BorrowUC_CTL(reader, scanner, printer, display, 
 				 null, null, null);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	ctl.initialise();
+            	
             }
         });		
 	}
@@ -120,7 +121,7 @@ public class Main implements IMainListener {
 	public static void main(String[] args) {
 		
         // start the GUI
-		final Main main = new Main();
+		Main main = new Main();
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	main.display.setDisplay(new MainPanel(main), "Main Menu");

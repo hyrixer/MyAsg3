@@ -1,101 +1,112 @@
 package library.daos;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import library.interfaces.daos.IMemberDAO;
-import library.interfaces.daos.IMemberHelper;
-import library.interfaces.entities.IBook;
-import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
+import library.interfaces.daos.IMemberHelper;
 
 public class MemberDAO implements IMemberDAO {
 
+	private IMemberHelper helper;
+	private Map<Integer, IMember> memberMap;
+	private int nextID;
 	
-	int nextId;
-	IMemberHelper helper;
-	Map<Integer, IMember> memberMap = new HashMap<Integer, IMember>();
-	
-	public MemberDAO (IMemberHelper helper) {
-		if (helper == null) {
-			throw new IllegalArgumentException("helper cannot be null");
-		} else {
-			this.helper = helper;
+	public MemberDAO(IMemberHelper helper) {
+		if (helper == null ) {
+			throw new IllegalArgumentException(
+				String.format("MemberMapDAO : constructor : helper cannot be null."));
 		}
+		this.helper = helper;
+		this.memberMap = new HashMap<Integer, IMember>();
+		this.nextID = 1;
 	}
+
+	public MemberDAO(IMemberHelper helper, Map<Integer,IMember> memberMap) {
+		this(helper);
+		if (memberMap == null ) {
+			throw new IllegalArgumentException(
+				String.format("MemberMapDAO : constructor : memberMap cannot be null."));
+		}
+		this.memberMap = memberMap;
+	}
+
 	
 	@Override
 	public IMember addMember(String firstName, String lastName,
-			String ContactPhone, String emailAddress) {
-		// TODO Auto-generated method stub
-		IMember newMember = helper.makeMember(firstName, lastName, ContactPhone, emailAddress, nextId);
-		memberMap.put(nextId, newMember);
-		nextId++;
-		
-		return newMember;
-		
+			String contactPhone, String emailAddress) {
+		int id = getNextId();
+		IMember mem = helper.makeMember(firstName, lastName, contactPhone, emailAddress, id);
+		memberMap.put(Integer.valueOf(id), mem);
+		return mem;
 	}
 
 	@Override
 	public IMember getMemberByID(int id) {
-		// TODO Auto-generated method stub
-		IMember member = memberMap.get(id);
-		if (member == null) {
-			return null;
+		if (memberMap.keySet().contains(Integer.valueOf(id))) {
+			return memberMap.get(Integer.valueOf(id));
 		}
-		return member;
+		return null;
 	}
 
 	@Override
 	public List<IMember> listMembers() {
-		// TODO Auto-generated method stub
-		List <IMember> memberList = new LinkedList<IMember>();
-		for (int i = 0; i < memberMap.size(); i++) {
-			memberList.add(memberMap.get(i));
-		}
-		return memberList;
+		List<IMember> list = new ArrayList<IMember>(memberMap.values());
+		return Collections.unmodifiableList(list);
 	}
 
 	@Override
 	public List<IMember> findMembersByLastName(String lastName) {
-		// TODO Auto-generated method stub
-		List <IMember> memberList = new LinkedList<IMember>();
-		for (int i = 0; i < memberMap.size(); i++) {
-			IMember member = memberMap.get(i);
-			if (member.getLastName() == lastName) {
-				memberList.add(member);
+		if ( lastName == null || lastName.isEmpty()) {
+			throw new IllegalArgumentException(
+				String.format("MemberMapDAO : findMembersByLastName : lastName cannot be null or blank"));
+		}
+		List<IMember> list = new ArrayList<IMember>();
+		for (IMember m : memberMap.values()) {
+			if (lastName.equals(m.getLastName())) {
+				list.add(m);
 			}
 		}
-		return memberList;
-		
+		return Collections.unmodifiableList(list);
 	}
 
 	@Override
 	public List<IMember> findMembersByEmailAddress(String emailAddress) {
-		// TODO Auto-generated method stub
-		List <IMember> memberList = new LinkedList<IMember>();
-		for (int i = 0; i < memberMap.size(); i++) {
-			IMember member = memberMap.get(i);
-			if (member.getEmailAddress() == emailAddress) {
-				memberList.add(member);
+		if ( emailAddress == null || emailAddress.isEmpty()) {
+			throw new IllegalArgumentException(
+				String.format("MemberMapDAO : findMembersByEmailAddress : emailAddress cannot be null or blank"));
+		}
+		List<IMember> list = new ArrayList<IMember>();
+		for (IMember m : memberMap.values()) {
+			if (emailAddress.equals(m.getEmailAddress())) {
+				list.add(m);
 			}
 		}
-		return memberList;
+		return Collections.unmodifiableList(list);
 	}
 
 	@Override
 	public List<IMember> findMembersByNames(String firstName, String lastName) {
-		// TODO Auto-generated method stub
-		List <IMember> memberList = new LinkedList<IMember>();
-		for (int i = 0; i < memberMap.size(); i++) {
-			IMember member = memberMap.get(i);
-			if (member.getFirstName() == firstName && member.getLastName() == lastName) {
-				memberList.add(member);
+		if ( firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+			throw new IllegalArgumentException(
+				String.format("MemberMapDAO : findMembersByNames : firstName and lastName cannot be null or blank"));
+		}
+		List<IMember> list = new ArrayList<IMember>();
+		for (IMember m : memberMap.values()) {
+			if (firstName.equals(m.getFirstName()) && lastName.equals(m.getLastName())) {
+				list.add(m);
 			}
 		}
-		return memberList;
+		return Collections.unmodifiableList(list);
 	}
+
+	private int getNextId() {
+		return nextID++;
+	}
+
 
 }

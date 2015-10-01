@@ -22,6 +22,8 @@ public interface ILoan {
 	public IBook getBook();
 	
 	public int getID();
+
+	public ELoanState getState();
 	
 
 }

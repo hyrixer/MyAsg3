@@ -1,61 +1,57 @@
 package library.entities;
 
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import library.interfaces.entities.EMemberState;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
-
-import java.util.Date;
+import library.interfaces.entities.EMemberState;
 
 public class Member implements IMember {
 
-	private int id;
-	private float totalFines;
-	private List<ILoan> loanList; 
-	private String firstName;
-	private String lastName;
-	private String contactPhone;
-	private String emailAddress;
+	private final String firstName;
+	private final String lastName;
+	private final String contactPhone;
+	private final String emailAddress;
+	private final int id;
+	
 	private EMemberState state;
+	private List<ILoan> loanList;
+	private float totalFines;
 	
-	
-	
-	
-	public Member(String firstName, String lastName, String contactPhone, String emailAddress, int id) {
-		
-		if (firstName == null || firstName == "") {
-			throw new IllegalArgumentException("first name cannot be null");
+	public Member(String firstName, String lastName, String contactPhone,
+			String email, int memberID) {
+		if ( !sane(firstName, lastName, contactPhone, email, memberID)) {
+			throw new IllegalArgumentException("Member: constructor : bad parameters");
 		}
-		else if (lastName == null || lastName == "") {
-			throw new IllegalArgumentException("last name cannot be null");
-		}
-		else if (contactPhone == null || contactPhone == "") {
-			throw new IllegalArgumentException("contact phone cannot be null");
-		}
-		else if (emailAddress == null || emailAddress == "") {
-			throw new IllegalArgumentException("email address cannot be null");
-		}
-		else if (id <= 0) {
-			throw new IllegalArgumentException("id cannot be zero or below");
-		} else {
-			this.firstName = firstName;
-			this.lastName = lastName;
-			this.contactPhone = contactPhone;
-			this.emailAddress = emailAddress;
-			this.id = id;
-		}
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.contactPhone = contactPhone;
+		this.emailAddress = email;
+		this.id = memberID;
+		this.loanList = new ArrayList<ILoan>();
+		this.totalFines = 0.0f;
+		this.state = EMemberState.BORROWING_ALLOWED;
 	}
+
+	
+	private boolean sane(String firstName, String lastName, String contactPhone,
+			String emailAddress, int memberID) {
+		return  ( firstName != null    && !firstName.isEmpty()    &&
+				  lastName != null     && !lastName.isEmpty()     &&
+				  contactPhone != null && !contactPhone.isEmpty() &&
+				  emailAddress != null && !emailAddress.isEmpty() &&
+				  memberID > 0 
+				);
+	}
+
 
 	@Override
 	public boolean hasOverDueLoans() {
-		// TODO Auto-generated method stub
-		Calendar cal = Calendar.getInstance();
-		Date now = cal.getTime();
-		for (int i = 0; i <loanList.size(); i++) {
-			if (loanList.get(i).checkOverDue(now)) {
-			return true;
+		for (ILoan loan : loanList) {
+			if (loan.isOverDue()) {
+				return true;
 			}
 		}
 		return false;
@@ -63,117 +59,127 @@ public class Member implements IMember {
 
 	@Override
 	public boolean hasReachedLoanLimit() {
-		// TODO Auto-generated method stub
-		if (loanList.size() == LOAN_LIMIT) {
-			return true;
-		}
-		return false;
+		boolean b = loanList.size() >= IMember.LOAN_LIMIT;
+		return b;
 	}
 
 	@Override
 	public boolean hasFinesPayable() {
-		if (totalFines > 0) {
-			return true;
-		}
-		return false;
+		boolean b = totalFines > 0.0f;
+		return b;
 	}
 
 	@Override
 	public boolean hasReachedFineLimit() {
-		// TODO Auto-generated method stub
-		if (totalFines > FINE_LIMIT) {
-			return true;
-		}
-		return false;
+		boolean b = totalFines >= IMember.FINE_LIMIT;
+		return b;
 	}
 
 	@Override
 	public float getFineAmount() {
-		// TODO Auto-generated method stub
 		return totalFines;
 	}
 
 	@Override
-	public void addFine(float amount) {
-		// TODO Auto-generated method stub
-		if (amount < 0) {
-			throw new IllegalArgumentException("amount cannot be less than zero");
-		} else {
-			totalFines += amount;
+	public void addFine(float fine) {
+		if (fine < 0) {
+			throw new RuntimeException(String.format("Member: addFine : fine cannot be negative"));
 		}
+		totalFines += fine;
+		updateState();
 	}
 
 	@Override
-	public void payFine(float amount) {
-		// TODO Auto-generated method stub
-		if (amount < 0 || amount > totalFines) {
-			throw new IllegalArgumentException("amount cannot be less than zero");
-		} else {
-			totalFines -= amount;
+	public void payFine(float payment) {
+		if (payment < 0 || payment > totalFines) {
+			throw new RuntimeException(String.format("Member: addFine : payment cannot be negative or greater than totalFines"));
 		}
+		totalFines -= payment;
+		updateState();
 	}
 
 	@Override
 	public void addLoan(ILoan loan) {
-		// TODO Auto-generated method stub
-		if (loan == null) {
-			throw new IllegalArgumentException("loan cannot be null");
-		} else if (state == EMemberState.BORROWING_DISALLOWED) {
-			throw new IllegalArgumentException("this memeber cannot borrow");
-		} else {
-			loanList.add(loan);
+		if (!borrowingAllowed()) {
+			throw new RuntimeException(String.format("Member: addLoan : illegal operation in state: %s", state));
 		}
+		loanList.add(loan);
+		updateState();
 	}
 
 	@Override
 	public List<ILoan> getLoans() {
-		// TODO Auto-generated method stub
-		return (List<ILoan>) loanList;
+		return Collections.unmodifiableList(loanList);
 	}
 
 	@Override
 	public void removeLoan(ILoan loan) {
-		// TODO Auto-generated method stub
 		if (loan == null || !loanList.contains(loan)) {
-			throw new IllegalArgumentException("loan cannot be removed");
-		} else {
-			loanList.remove(loan);
+			throw new RuntimeException(String.format("Member: removeLoan : loan is null or not found in loanList"));
 		}
+		loanList.remove(loan);
+		updateState();
 	}
 
+	
 	@Override
 	public EMemberState getState() {
-		// TODO Auto-generated method stub
 		return state;
 	}
 
+	
 	@Override
 	public String getFirstName() {
-		// TODO Auto-generated method stub
 		return firstName;
 	}
 
+	
 	@Override
 	public String getLastName() {
-		// TODO Auto-generated method stub
 		return lastName;
 	}
 
+	
 	@Override
 	public String getContactPhone() {
-		// TODO Auto-generated method stub
 		return contactPhone;
 	}
 
+	
 	@Override
 	public String getEmailAddress() {
-		// TODO Auto-generated method stub
 		return emailAddress;
 	}
 
+	
 	@Override
 	public int getID() {
-		// TODO Auto-generated method stub
 		return id;
 	}
+
+	
+	@Override
+	public String toString() {
+		return String.format(
+				"Id: %d\nName: %s %s\nContact Phone: %s\nEmail: %s\nOutstanding Charges: %0.2f", id,
+				firstName, lastName, contactPhone, emailAddress, totalFines);
+	}
+
+	private Boolean borrowingAllowed() {
+		boolean b = !hasOverDueLoans() &&
+				!hasReachedFineLimit() &&
+				!hasReachedLoanLimit();
+		return b;
+	}
+
+	private void updateState() {
+		if (borrowingAllowed()) {
+			state = EMemberState.BORROWING_ALLOWED;
+		}
+		else {
+			state = EMemberState.BORROWING_DISALLOWED;
+		}
+	}
+
+
 }

@@ -14,8 +14,8 @@ import library.interfaces.entities.ILoan;
 public class BookDAO implements IBookDAO {
 
 	IBookHelper helper;
-	int nextId = 1;
-	Map<Integer, IBook> bookMap = new HashMap<Integer, IBook>();
+	int nextId;
+	Map<Integer, IBook> bookMap;
 	
 	
 	public BookDAO (IBookHelper helper) {
@@ -23,6 +23,8 @@ public class BookDAO implements IBookDAO {
 			throw new IllegalArgumentException("helper cannot be null");
 		} else {
 			this.helper = helper;
+			this.bookMap = new HashMap<Integer, IBook>();
+			this.nextId = 1;
 		}
 		
 	}
@@ -30,9 +32,10 @@ public class BookDAO implements IBookDAO {
 	@Override
 	public IBook addBook(String author, String title, String callNo) {
 		// TODO Auto-generated method stub
-		IBook newBook = helper.makeBook(author, title, callNo, nextId);
-		bookMap.put(nextId, newBook);
-		nextId++;
+		int id = getNextId();
+		IBook newBook = helper.makeBook(author, title, callNo, id);
+		bookMap.put(Integer.valueOf(id), newBook);
+		
 		
 		return newBook;
 	}
@@ -102,5 +105,9 @@ public class BookDAO implements IBookDAO {
 	public Map<Integer, IBook> getBookMap() {
 		
 		return bookMap;
+	}
+	
+	private int getNextId() {
+		return nextId++;
 	}
 }

@@ -10,8 +10,7 @@ public class MemberHelper implements IMemberHelper {
 	public IMember makeMember(String firstName, String lastName,
 			String contactPhone, String emailAddress, int id) {
 		
-		Member member = new Member (firstName, lastName, contactPhone, emailAddress, id);
-		return member;
+		return new Member(firstName, lastName, contactPhone, emailAddress, id);
 	}
 
 }

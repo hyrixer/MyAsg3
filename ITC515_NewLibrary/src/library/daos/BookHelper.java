@@ -9,8 +9,8 @@ public class BookHelper implements IBookHelper{
 	@Override
 	public IBook makeBook(String author, String title, String callNumber, int id) {
 		
-		Book book = new Book(author, title, callNumber, id);
-		return book;
+		
+		return new Book(author, title, callNumber, id);
 	}
 	
 }
