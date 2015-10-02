@@ -47,7 +47,7 @@ public class TestSwipeCard {
 	IMemberDAO memberDao;
 	IBookHelper bookHelper = new BookHelper();
 	ILoanHelper loanHelper = new LoanHelper();
-	IMemberHelper memberHelper = new MemberHelper();
+	IMemberHelper helper;
 	ABorrowPanel ui;
 	
 	
@@ -62,7 +62,7 @@ public class TestSwipeCard {
 		bookDao = new BookDAO(bookHelper);
 		loanDao = new LoanDAO(loanHelper);
 		memberDao = mock(IMemberDAO.class);
-		//helper = mock(IMemberHelper.class);
+		helper = mock(IMemberHelper.class);
 		ui = mock(ABorrowPanel.class);
 		//reader.addListener(ctl);
 		ctl = new BorrowUC_CTL(reader, scanner, printer, display, 
@@ -84,7 +84,7 @@ public class TestSwipeCard {
 	}
 
 	@Test
-	public void testSwipeCard() {
+	public void testSwipeCardMemberAvailableBorrowNotRestricted() {
 		
 		IMember member = mock(IMember.class);
 		ILoan loan = mock(ILoan.class);
@@ -129,8 +129,56 @@ public class TestSwipeCard {
 		
 		
 		
+	}
+	
+	@Test
+	public void testSwipeCardMemberAvailableBorrowRestricted() {
+		
+		IMember member = mock(IMember.class);
+		ILoan loan = mock(ILoan.class);
+		List<ILoan> mockList = mock(List.class);
+		Iterator<ILoan> mockIterator = mock(Iterator.class);
+		int id = 1;
+		
+		
+		when(mockList.iterator()).thenReturn(mockIterator);
+		when(mockIterator.hasNext()).thenReturn(true, false);
+		when(mockIterator.next()).thenReturn(loan);
+		when(memberDao.getMemberByID(id)).thenReturn(member);
+		when(member.hasOverDueLoans()).thenReturn(true);
+		when(member.hasReachedLoanLimit()).thenReturn(false);
+		when(member.hasFinesPayable()).thenReturn(false);
+		when(member.hasReachedFineLimit()).thenReturn(false);
+		when(member.getLoans()).thenReturn(mockList);
+		
+		when(loan.toString()).thenReturn("loanDetails");
+		
+		when(display.getDisplay()).thenReturn(null);
+		
+		ctl.cardSwiped(id);
+		
+		verify(memberDao).getMemberByID(id);
+		verify(member).hasOverDueLoans();
+		verify(member).hasReachedLoanLimit();
+		verify(member).hasFinesPayable();
+		verify(member).hasReachedFineLimit();
+		EBorrowState actualState = ctl.getState();
+		assertEquals(EBorrowState.BORROWING_RESTRICTED, actualState);
+		
+		verify(reader).setEnabled(false);
+	
+		verify(ui).setState(EBorrowState.BORROWING_RESTRICTED);
+		
+		
+	
+		verify(ui).displayExistingLoan("loanDetails");
+		
+		
 		
 		
 	}
+	
+		
+	
 
 }
