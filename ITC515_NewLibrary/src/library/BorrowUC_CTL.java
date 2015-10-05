@@ -30,7 +30,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	private IScanner scanner; 
 	private IPrinter printer; 
 	private IDisplay display;
-	//private String state;
+	
 	private int scanCount = 0;
 	private IBorrowUI ui;
 	private EBorrowState state; 
@@ -85,7 +85,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 		previous = display.getDisplay();
 		display.setDisplay((JPanel) ui, "Borrow UI");		
 		setState(EBorrowState.INITIALIZED);
-		scanner.setEnabled(true);
+		reader.setEnabled(true);
 		
 	}
 	
@@ -95,40 +95,45 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	@Override
 	public void cardSwiped(int memberID) {
-		System.out.println("cardSwiped: got " + memberID);
+		
 		if (!state.equals(EBorrowState.INITIALIZED)) {
-			throw new RuntimeException(
-					String.format("BorrowUC_CTL : cardSwiped : illegal operation in state: %s", state));
+			throw new RuntimeException("illegal operation in state: " + state);
 		}
+		
 		borrower = memberDAO.getMemberByID(memberID);
 		if (borrower == null) {
-			ui.displayErrorMessage(String.format("Member ID %d not found", memberID));
+			ui.displayErrorMessage("Member ID " + memberID + " not found");
 			return;
 		}
 		boolean overdue = borrower.hasOverDueLoans();
 		boolean atLoanLimit = borrower.hasReachedLoanLimit();
 		boolean hasFines = borrower.hasFinesPayable();
 		boolean overFineLimit = borrower.hasReachedFineLimit();
-		boolean borrowing_restricted = (overdue || atLoanLimit || overFineLimit);
+		boolean borrowingRestricted = (overdue || atLoanLimit || overFineLimit);
 		
-		if (borrowing_restricted) {
+		if (borrowingRestricted) {
 			setState(EBorrowState.BORROWING_RESTRICTED);
 		}
 		else {
 			setState(EBorrowState.SCANNING_BOOKS);
 		}
 
-		//display member details
-		int mID = borrower.getID();
-		String mName = borrower.getFirstName() + " " + borrower.getLastName();
-		String mContact = borrower.getContactPhone();
-		ui.displayMemberDetails(mID, mName, mContact);	
+		
+		
+		int memID = borrower.getID();
+		String memberName = borrower.getFirstName() + " " + borrower.getLastName();
+		String memberContact = borrower.getContactPhone();
+		ui.displayMemberDetails(memID, memberName, memberContact);	
 		
 		if (hasFines) {
 			float amountOwing = borrower.getFineAmount();
 			ui.displayOutstandingFineMessage(amountOwing);
 		}
-		
+		if (overFineLimit) {
+			
+			float amountOwing = borrower.getFineAmount();
+			ui.displayOverFineLimitMessage(amountOwing);
+		}
 		if (overdue) {
 			ui.displayOverDueMessage();
 		}
@@ -137,13 +142,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 			ui.displayAtLoanLimitMessage();
 		}
 		
-		if (overFineLimit) {
-			System.out.println("State: " + state);
-			float amountOwing = borrower.getFineAmount();
-			ui.displayOverFineLimitMessage(amountOwing);
-		}
 		
-		//display existing loans
 		String loanString = buildLoanListDisplay(borrower.getLoans());
 		ui.displayExistingLoan(loanString);
 	}
@@ -193,7 +192,7 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	
 	private void setState(EBorrowState state) {
-		System.out.println("Setting state: " + state);
+		
 		
 		this.state = state;
 		ui.setState(state);

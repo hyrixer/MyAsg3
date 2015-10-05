@@ -1,5 +1,11 @@
 package library;
 
+import library.daos.BookDAO;
+import library.daos.BookHelper;
+import library.daos.LoanDAO;
+import library.daos.LoanHelper;
+import library.daos.MemberDAO;
+import library.daos.MemberHelper;
 import library.hardware.CardReader;
 import library.hardware.Display;
 import library.hardware.Printer;
@@ -10,8 +16,11 @@ import java.util.Date;
 
 import library.interfaces.IMainListener;
 import library.interfaces.daos.IBookDAO;
+import library.interfaces.daos.IBookHelper;
 import library.interfaces.daos.ILoanDAO;
+import library.interfaces.daos.ILoanHelper;
 import library.interfaces.daos.IMemberDAO;
+import library.interfaces.daos.IMemberHelper;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
@@ -26,14 +35,23 @@ public class Main implements IMainListener {
 	private IBookDAO bookDAO;
 	private ILoanDAO loanDAO;
 	private IMemberDAO memberDAO;
+	private IBookHelper bookHelper;
+	private IMemberHelper memberHelper;
+	private ILoanHelper loanHelper;
 	
 	public Main() {
 		reader = new CardReader();
 		scanner = new Scanner();
 		printer = new Printer();
 		display = new Display();
+		bookHelper = new BookHelper();
+		bookDAO = new BookDAO(bookHelper);
+		loanHelper = new LoanHelper();
+		loanDAO = new LoanDAO(loanHelper);
+		memberHelper = new MemberHelper();
+		memberDAO = new MemberDAO(memberHelper);
 		
-		//setupTestData();
+		setupTestData();
 	}
 
 
@@ -48,7 +66,7 @@ public class Main implements IMainListener {
 	@Override
 	public void borrowBooks() {
 		BorrowUC_CTL ctl = new BorrowUC_CTL(reader, scanner, printer, display, 
-				 null, null, null);
+				 bookDAO, loanDAO, memberDAO);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	ctl.initialise();
@@ -60,7 +78,7 @@ public class Main implements IMainListener {
 	
 	private void setupTestData() {
         IBook[] book = new IBook[15];
-		//IMember[] member = new IMember[6];
+		IMember[] member = new IMember[6];
 		
 		book[0]  = bookDAO.addBook("author1", "title1", "callNo1");
 		book[1]  = bookDAO.addBook("author1", "title2", "callNo2");
@@ -78,7 +96,7 @@ public class Main implements IMainListener {
 		book[13] = bookDAO.addBook("author5", "title14", "callNo14");
 		book[14] = bookDAO.addBook("author5", "title15", "callNo15");
 		
-		/*member[0] = memberDAO.addMember("fName0", "lName0", "0001", "email0");
+		member[0] = memberDAO.addMember("fName0", "lName0", "0001", "email0");
 		member[1] = memberDAO.addMember("fName1", "lName1", "0002", "email1");
 		member[2] = memberDAO.addMember("fName2", "lName2", "0003", "email2");
 		member[3] = memberDAO.addMember("fName3", "lName3", "0004", "email3");
@@ -114,7 +132,7 @@ public class Main implements IMainListener {
 		for (int i=7; i<9; i++) {
 			ILoan loan = loanDAO.createLoan(member[5], book[i]);
 			loanDAO.commitLoan(loan);
-		}*/
+		}
 	}
 
 	
